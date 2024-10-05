@@ -3,10 +3,16 @@
       <h1>Transactions</h1>
       <ul>
         <li v-for="transaction in transactions" :key="transaction.id">
-          {{ transaction.description }} - {{ transaction.amount }} - {{ transaction.type }}
+            [ id:{{ transaction.id }} ] {{ transaction.description }} - {{ transaction.amount }}€ - {{ transaction.type }}
         </li>
       </ul>
       <h2>Balance: {{ balance }}</h2>
+      <h3>Categories</h3>
+      <ul>
+        <li v-for="category in categories" :key="category.id">
+            [ id:{{ category.id }} ] {{ category.name }} 
+        </li>
+      </ul>
     </div>
   </template>
   
@@ -17,12 +23,13 @@
     data() {
       return {
         transactions: [],
-        balance: 0 // Adiciona uma propriedade para armazenar o balance
+        balance: 0 
       }
     },
     mounted() {
       this.fetchTransactions()
-      this.fetchBalance() // Chama o método para obter o balance
+      this.fetchCategories()
+      this.fetchBalance() 
     },
     methods: {
       async fetchTransactions() {
@@ -33,10 +40,18 @@
           console.error('Error fetching transactions:', error)
         }
       },
+      async fetchCategories() {
+        try {
+          const response = await axios.get('http://localhost:8000/api/categories')
+          this.categories = response.data
+        } catch (error) {
+          console.error('Error fetching categories:', error)
+        }
+      },
       async fetchBalance() {
         try {
           const response = await axios.get('http://localhost:8000/api/balance')
-          this.balance = response.data.balance // Armazena o balance retornado pela API
+          this.balance = response.data.balance 
         } catch (error) {
           console.error('Error fetching balance:', error)
         }
@@ -51,6 +66,9 @@
   }
   h2 {
     color: #333;
+  }
+  h3 {
+    color: #bb0e81;
   }
   </style>
   
