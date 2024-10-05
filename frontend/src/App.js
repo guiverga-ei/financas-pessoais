@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [transactions, setTransactions] = useState([]);
@@ -9,7 +10,12 @@ function App() {
   // Função para buscar as transações da API
   useEffect(() => {
     fetch('http://127.0.0.1:8000/api/transactions')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erro ao buscar transações');
+        }
+        return response.json();
+      })
       .then(data => setTransactions(data))
       .catch(error => console.error('Erro ao buscar transações:', error));
   }, []);
@@ -26,11 +32,16 @@ function App() {
       },
       body: JSON.stringify({
         description,
-        amount: parseFloat(amount), // Certifica-te de que o valor é numérico
+        amount: parseFloat(amount),
         date,
       }),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erro ao criar transação');
+        }
+        return response.json();
+      })
       .then(data => {
         // Atualizar a lista de transações com a nova transação criada
         setTransactions([...transactions, data]);
@@ -39,51 +50,56 @@ function App() {
         setDescription('');
         setAmount('');
         setDate('');
+        alert("Transação criada com sucesso!");
       })
       .catch(error => console.error('Erro ao criar transação:', error));
   };
 
   return (
-    <div className="App">
-      <h1>Transações Financeiras</h1>
+    <div className="container mt-5">
+      <h1 className="text-center">Gerenciador de Transações Financeiras</h1>
 
       {/* Formulário para criar uma nova transação */}
-      <form onSubmit={createTransaction}>
-        <div>
-          <label>Descrição:</label>
+      <form onSubmit={createTransaction} className="border p-4 rounded">
+        <div className="mb-3">
+          <label className="form-label">Descrição:</label>
           <input
             type="text"
+            className="form-control"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Valor (€):</label>
+        <div className="mb-3">
+          <label className="form-label">Valor (€):</label>
           <input
             type="number"
+            className="form-control"
             step="0.01"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Data:</label>
+        <div className="mb-3">
+          <label className="form-label">Data:</label>
           <input
             type="date"
+            className="form-control"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Adicionar Transação</button>
+        <button type="submit" className="btn btn-success">Adicionar Transação</button>
       </form>
 
       {/* Lista de transações */}
-      <ul>
+      <h2 className="mt-4">Transações Existentes</h2>
+      <ul className="list-group">
         {transactions.map((transaction, index) => (
-          <li key={index}>
+          <li className="list-group-item" key={index}>
             {transaction.description}: {transaction.amount}€ (Data: {transaction.date})
           </li>
         ))}
