@@ -9,5 +9,18 @@ class Transaction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['description', 'amount', 'date'];
+    protected $fillable = [
+       // 'user_id',
+        'description',
+        'amount',
+        'date',
+        'type',
+        'category',
+    ];
+
+    // Relationship with the user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
