@@ -1,3 +1,21 @@
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+const workInProgressProjects = ref([])
+onMounted(async () => {
+  try {
+    const userId = 1
+    const response = await axios.get("users/" + userId + "/projects/inprogress")
+    workInProgressProjects.value = response.data.data
+  } catch (error) {
+    console.log(error)
+  }
+})
+</script>
+
+
 <template>
     <div>
       <h1>Transactions</h1>
