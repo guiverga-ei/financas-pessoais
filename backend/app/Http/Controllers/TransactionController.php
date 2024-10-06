@@ -4,13 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
     // List all transactions
-    public function index()
+    public function index(Request $request)
     {
-        return Transaction::with('category')->get(); // Inclui a categoria relacionada
+        // Verifica se o mês foi passado como parâmetro na URL
+        $month = $request->query('month');
+
+        // Se houver um filtro de mês, aplique-o
+        if ($month) {
+            // Converta o mês para um formato de data, ex: '2023-10'
+            $transactions = Transaction::with('category')
+                ->whereMonth('date', Carbon::parse($month)->month)
+                ->whereYear('date', Carbon::parse($month)->year)
+                ->orderBy('date', 'asc')
+                ->get();
+        } else {
+            // Se não houver mês, retorna todas as transações ordenadas por data
+            $transactions = Transaction::with('category')
+                ->orderBy('date', 'asc')
+                ->get();
+        }
+
+        return response()->json($transactions);
     }
 
     // public function index()
@@ -75,23 +94,48 @@ class TransactionController extends Controller
     }
 
     // Calculate total balance (sum of incomes - sum of expenses)
-    public function calculateBalance()
+
+
+    public function calculateBalance(Request $request)
     {
-        // Somar todas as receitas (transactions com categoria 'income')
-        $incomes = Transaction::whereHas('category', function ($query) {
-            $query->where('type', 'income'); // Filtra as categorias de tipo 'income'
-        })->sum('amount');
+        $month = $request->query('month');
 
-        // Somar todas as despesas (transactions com categoria 'expense')
-        $expenses = Transaction::whereHas('category', function ($query) {
-            $query->where('type', 'expense'); // Filtra as categorias de tipo 'expense'
-        })->sum('amount');
+        if ($month) {
+            // Filtrar transações pelo mês e ano e incluir a relação com a categoria
+            $incomes = Transaction::whereHas('category', function ($query) {
+                $query->where('type', 'income');
+            })
+                ->whereMonth('date', Carbon::parse($month)->month)
+                ->whereYear('date', Carbon::parse($month)->year)
+                ->sum('amount');
 
-        // Calcula o saldo
+            $expenses = Transaction::whereHas('category', function ($query) {
+                $query->where('type', 'expense');
+            })
+                ->whereMonth('date', Carbon::parse($month)->month)
+                ->whereYear('date', Carbon::parse($month)->year)
+                ->sum('amount');
+        } else {
+            // Somente transações com categorias "income"
+            $incomes = Transaction::whereHas('category', function ($query) {
+                $query->where('type', 'income');
+            })
+                ->sum('amount');
+
+            // Somente transações com categorias "expense"
+            $expenses = Transaction::whereHas('category', function ($query) {
+                $query->where('type', 'expense');
+            })
+                ->sum('amount');
+        }
+
+        // Cálculo do saldo final
         $balance = $incomes - $expenses;
 
         return response()->json(['balance' => $balance]);
     }
+
+
     // // Calculate total balance (sum of incomes - sum of expenses)
     // public function calculateBalance()
     // {
