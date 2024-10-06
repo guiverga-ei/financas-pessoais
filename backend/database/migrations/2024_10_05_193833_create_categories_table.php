@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Nome da categoria
             $table->text('description')->nullable();
+            $table->enum('type', ['income', 'expense']); // Tipo da categoria (income ou expense)
             $table->timestamps();
         });
     }

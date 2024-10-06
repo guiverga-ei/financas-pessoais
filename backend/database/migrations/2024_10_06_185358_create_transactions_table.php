@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('description');
             $table->decimal('amount', 10, 2); // Amount of the transaction
             $table->date('date');
-            $table->enum('type', ['income', 'expense']); // Define whether it is an income or expense
-            $table->string('category')->nullable(); // Optional category
+            //$table->enum('type', ['income', 'expense']); // Define whether it is an income or expense
+            //$table->string('category')->nullable(); // Optional category
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null'); // Foreign key to 'categories'
             $table->timestamps();
         });
     }

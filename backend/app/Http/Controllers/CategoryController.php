@@ -20,6 +20,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'type' => 'required|in:income,expense', // Validação para 'type'
         ]);
 
         // Cria a categoria
@@ -41,6 +42,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'type' => 'required|in:income,expense', // Validação para 'type'
         ]);
 
         // Encontra a categoria e atualiza os dados
