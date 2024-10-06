@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h1>Welcome to the Home Page</h1>
+      <h1>Welcome Guilherme</h1>
       <p>Navigate through the transactions and categories using the menu.</p>
     </div>
   </template>
