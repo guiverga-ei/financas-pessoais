@@ -1,4 +1,4 @@
-@import './base.css';
+/* @import './base.css';
 
 #app {
   max-width: 1280px;
@@ -31,5 +31,46 @@ a,
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
+  }
+} */
+
+@import './base.css';
+
+/* Estilo geral para o app */
+#app {
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+/* Estilo para links e elementos verdes */
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+/* Remover as regras que centralizam o conteúdo no ecrã */
+@media (min-width: 1024px) {
+  body {
+    /* Remove display: flex e place-items: center */
+    display: block; /* Permite o fluxo normal dos elementos */
+    margin: 0;
+  }
+
+  #app {
+    display: block; /* Remove o grid que causa o afastamento */
+    padding: 0 2rem;
+    max-width: none; /* Permite que o conteúdo se expanda conforme necessário */
+    margin: 0; /* Remove margem automática */
+    padding: 0; /* Remove qualquer padding */
   }
 }

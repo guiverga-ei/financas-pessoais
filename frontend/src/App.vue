@@ -1,50 +1,109 @@
 <template>
-  <div>
-    <!-- Navbar -->
-    <nav class="navbar">
-      <ul class="navbar-list">
-        <li><router-link to="/">Home</router-link></li>
-        <li><router-link to="/transactions">Transactions</router-link></li>
-        <li><router-link to="/categories">Categories</router-link></li>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">MyFinance</div>
+      <ul class="sidebar-list">
+        <li><router-link to="/"><i class="fas fa-home"></i>  Dashboard</router-link></li>
+        <li><router-link to="/transactions"><i class="fas fa-exchange-alt"></i> Transactions</router-link></li>
+        <li><router-link to="/categories"><i class="fas fa-list"></i> Categories</router-link></li>
       </ul>
     </nav>
 
-    <!-- Router View -->
-    <router-view></router-view>
+    <!-- Conteúdo principal -->
+    <div class="main-section">
+      <!-- Barra de utilizador -->
+      <UserBar />
+
+      <!-- Main content -->
+      <div class="main-content">
+        <router-view></router-view>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import UserBar from './components/UserBar.vue';
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    UserBar // Barra de utilizador
+  }
 }
 </script>
 
 <style scoped>
-.navbar {
-  background-color: #42b983;
-  padding: 1rem;
+/* Estrutura de layout */
+.app-layout {
   display: flex;
-  justify-content: center;
+  height: 100vh;
 }
 
-.navbar-list {
+/* Sidebar ajustada para ocupar toda a altura da página */
+.sidebar {
+  background-color: #42b983;
+  color: white;
+  width: 250px;
+  height: 100vh; /* Ocupa 100% da altura da janela */
+  position: fixed; /* Fixa a sidebar no lado esquerdo */
+  top: 0;
+  left: 0;
+  padding: 20px;
+}
+
+.sidebar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.sidebar-list {
   list-style-type: none;
   padding: 0;
-  display: flex;
 }
 
-.navbar-list li {
-  margin: 0 1rem;
+.sidebar-list li {
+  margin-bottom: 20px;
 }
 
-.navbar-list a {
+.sidebar-list a {
   color: white;
   text-decoration: none;
   font-weight: bold;
+  /* display: flex; */
+  align-items: center;
 }
 
-.navbar-list a:hover {
-  text-decoration: underline;
+.sidebar-list i {
+  margin-right: 8px;
+}
+
+/* Layout da secção principal */
+.main-section {
+  margin-left: 250px; /* Compensar a largura da sidebar */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Barra de utilizador */
+.user-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: #42b983;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Conteúdo principal */
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+  overflow-y: auto;
 }
 </style>

@@ -1,36 +1,38 @@
 <template>
-  <div>
-    <h1>Transactions</h1>
+  <div class="transactions-container">
+    <h2>New Transaction</h2>
 
     <!-- Formulário para criar nova transação -->
-    <form @submit.prevent="createTransaction">
-      <input v-model="newTransactionDescription" placeholder="Description" required />
-      <input v-model.number="newTransactionAmount" type="number" placeholder="Amount" required />
+    <form @submit.prevent="createTransaction" class="transaction-form">
+      <div class="form-group">
+        <label for="amount">Amount</label>
+        <input v-model.number="newTransactionAmount" type="number" placeholder="Amount" required />
 
-      <!-- Selecionar categoria -->
-      <select v-model="newTransactionCategoryId" required>
-        <option disabled value="">Select Category</option>
-        <option v-for="category in categories" :key="category.id" :value="category.id">
-          {{ category.name }} - {{ category.type }}
-        </option>
-      </select>
+        <label for="category">Category</label>
+        <select v-model="newTransactionCategoryId" required>
+          <option disabled value="">Select Category</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">
+            {{ category.name }}
+          </option>
+        </select>
 
-      <!-- Adicionar o campo para data da transação -->
-      <input v-model="newTransactionDate" type="date" required />
+        <label for="date">Date</label>
+        <input v-model="newTransactionDate" type="date" required />
 
-      <button type="submit">Add Transaction</button>
+        <label for="description">Description</label>
+        <input v-model="newTransactionDescription" placeholder="Description" required />
+
+        <button type="submit" class="btn-submit">Add Transaction</button>
+      </div>
     </form>
 
     <h2>Existing Transactions</h2>
 
     <!-- Seletor de mês -->
-    <div>
-      <label for="month">Select Month:</label>
+    <div class="month-selector">
+      <label for="month">Select Month: </label>
       <input type="month" v-model="selectedMonth" @change="fetchTransactionsByMonth" />
     </div>
-
-    <!-- Mostrar mensagem se não houver transações -->
-    <p v-if="transactions.length === 0">No transactions found for the selected month.</p>
 
     <!-- Tabela de transações -->
     <table v-if="transactions.length > 0" class="transaction-table">
@@ -50,77 +52,16 @@
           :key="transaction.id"
           :class="{ 'striped-row': index % 2 === 1 }"
         >
-          <!-- Exibir campos editáveis apenas para a transação que está sendo editada -->
           <td>{{ transaction.id }}</td>
-
-          <!-- Campo de data -->
-          <td v-if="editingTransaction.id !== transaction.id">{{ transaction.date }}</td>
-          <td v-else>
-            <input v-model="editingTransaction.date" type="date" />
-          </td>
-
-          <!-- Campo de descrição -->
-          <td v-if="editingTransaction.id !== transaction.id">{{ transaction.description }}</td>
-          <td v-else>
-            <input v-model="editingTransaction.description" placeholder="New Description" />
-          </td>
-
-          <!-- Campo de valor -->
-          <td :class="getAmountClass(transaction)" v-if="editingTransaction.id !== transaction.id">
-            {{ getAmountSign(transaction) }} {{ transaction.amount }}€
-          </td>
-          <td v-else>
-            <input
-              v-model.number="editingTransaction.amount"
-              type="number"
-              placeholder="New Amount"
-            />
-          </td>
-
-          <!-- Campo de tipo de categoria -->
-          <td v-if="editingTransaction.id !== transaction.id">
-            {{ transaction.category?.type || '---------' }}
-          </td>
-          <td v-else>
-            <select v-model="editingTransaction.category_id" required>
-              <option disabled value="">Select Category</option>
-              <option v-for="category in categories" :key="category.id" :value="category.id">
-                {{ category.name }} - {{ category.type }}
-              </option>
-            </select>
-          </td>
-
-          <!-- Ações -->
+          <td>{{ transaction.date }}</td>
+          <td>{{ transaction.description }}</td>
+          <td :class="getAmountClass(transaction)">{{ transaction.amount }}€</td>
+          <td>{{ transaction.category?.type || '---------' }}</td>
           <td>
-            <!-- Exibe o botão de editar ou os botões de salvar/cancelar durante a edição -->
-            <button
-              v-if="editingTransaction.id !== transaction.id"
-              @click="editTransaction(transaction)"
-              class="action-btn edit-btn"
-            >
+            <button @click="editTransaction(transaction)" class="action-btn edit-btn">
               <i class="fas fa-edit"></i>
             </button>
-
-            <!-- Botão de salvar -->
-            <button v-else @click="saveTransaction(transaction.id)" class="action-btn save-btn">
-              <i class="fas fa-save"></i>
-            </button>
-
-            <!-- Botão de cancelar -->
-            <button
-              v-if="editingTransaction.id === transaction.id"
-              @click="cancelEdit"
-              class="action-btn cancel-btn"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-
-            <!-- Botão de deletar -->
-            <button
-              v-if="editingTransaction.id !== transaction.id"
-              @click="deleteTransaction(transaction.id)"
-              class="action-btn delete-btn"
-            >
+            <button @click="deleteTransaction(transaction.id)" class="action-btn delete-btn">
               <i class="fas fa-trash-alt"></i>
             </button>
           </td>
@@ -128,7 +69,7 @@
       </tbody>
     </table>
 
-    <h2>Balance: {{ balance }}€</h2>
+    <h2 class="balance-display">Balance: {{ balance }}€</h2>
   </div>
 </template>
 
@@ -161,6 +102,7 @@ export default {
         const query = this.selectedMonth ? `?month=${this.selectedMonth}` : ''
         const response = await axios.get(`http://localhost:8000/api/balance${query}`)
         this.balance = response.data.balance
+        //console.log('dashboard:' + response.data.monthly_income);
       } catch (error) {
         console.error('Error fetching balance:', error)
       }
@@ -225,24 +167,9 @@ export default {
       }
     },
 
-    // Método para determinar a classe de estilo com base no tipo de transação
+    // Método para determinar a classe de estilo com base no valor da transação
     getAmountClass(transaction) {
-      if (transaction.category?.type === 'income') {
-        return 'amount-income'
-      } else if (transaction.category?.type === 'expense') {
-        return 'amount-expense'
-      }
-      return ''
-    },
-
-    // Método para retornar o sinal "+" ou "-" baseado no tipo da transação
-    getAmountSign(transaction) {
-      if (transaction.category?.type === 'income') {
-        return '+'
-      } else if (transaction.category?.type === 'expense') {
-        return '-'
-      }
-      return ''
+      return transaction.amount >= 0 ? 'amount-income' : 'amount-expense'
     },
 
     // Habilitar modo de edição para uma transação
@@ -288,34 +215,58 @@ export default {
     }
   }
 }
+
+
+
+
+
+
+
 </script>
 
 <style scoped>
-h1,
-h2 {
-  color: #42b983;
+  .transactions-container {
+   
+    padding: 20px;
+  }
+/* Alinhamento e formatação do formulário */
+.transaction-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-form {
-  margin-bottom: 1.5rem;
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
-button {
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Estilo dos botões */
+button.btn-submit {
   background-color: #42b983;
   color: white;
+  padding: 10px 15px;
   border: none;
-  padding: 5px 10px;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
 }
 
-button:hover {
+button.btn-submit:hover {
   background-color: #36a170;
-}
-
-input,
-select {
-  margin-right: 10px;
-  padding: 5px;
 }
 
 /* Estilo da tabela */
@@ -325,88 +276,60 @@ select {
   margin-top: 20px;
 }
 
-.transaction-table th,
-.transaction-table td {
+.transaction-table th, .transaction-table td {
   padding: 12px 15px;
   border: 1px solid #ddd;
   text-align: left;
 }
 
-/* Estilo do cabeçalho */
-.transaction-table thead {
+.transaction-table th {
   background-color: #f8f8f8;
   font-weight: bold;
 }
 
-/* Sombreamento alternado */
+/* Cores alternadas na tabela */
 .striped-row {
   background-color: #f9f9f9;
 }
 
-/* Sombreamento ao passar o mouse sobre a linha */
-.transaction-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Estilo para transações de income */
+/* Estilo para transações de income e expense */
 .amount-income {
   color: green;
   font-weight: bold;
 }
 
-/* Estilo para transações de expense */
 .amount-expense {
   color: red;
   font-weight: bold;
 }
 
-/* Botões de ação */
+/* Estilo para botões de ação */
 .action-btn {
   border: none;
-  padding: 5px 8px;
+  background-color: transparent;
   cursor: pointer;
-  margin-right: 5px;
-  display: inline-block;
-  vertical-align: middle;
 }
 
 .edit-btn {
-  background-color: #f0ad4e;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #ec971f;
+  color: #f0ad4e;
 }
 
 .delete-btn {
-  background-color: #d9534f;
-  color: white;
+  color: #d9534f;
 }
 
-.delete-btn:hover {
-  background-color: #c9302c;
+/* Estilo do saldo */
+.balance-display {
+  color: #42b983;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 30px;
 }
 
-.save-btn {
-  background-color: #5cb85c;
-  color: white;
-}
-
-.save-btn:hover {
-  background-color: #4cae4c;
-}
-
-.cancel-btn {
-  background-color: #d9534f;
-  color: white;
-}
-
-.cancel-btn:hover {
-  background-color: #d4423d;
-}
-
-i {
-  font-size: 1.0rem; /* Ajusta o tamanho do ícone */
+/* Estilo para o seletor de mês */
+.month-selector {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
 }
 </style>
