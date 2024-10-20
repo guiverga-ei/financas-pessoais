@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
+use App\Models\Category;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -15,13 +17,13 @@ class TransactionController extends Controller
         $month = $request->query('month');
 
         if ($month) {
-            $transactions = Transaction::with('category')
+            $transactions = Transaction::with('category', 'account')
                 ->whereMonth('date', Carbon::parse($month)->month)
                 ->whereYear('date', Carbon::parse($month)->year)
                 ->orderBy('date', 'asc')
                 ->get();
         } else {
-            $transactions = Transaction::with('category')
+            $transactions = Transaction::with('category', 'account')
                 ->orderBy('date', 'asc')
                 ->get();
         }
@@ -37,10 +39,12 @@ class TransactionController extends Controller
             'amount' => 'required|numeric',
             'date' => 'required|date',
             'category_id' => 'required|exists:categories,id', // Valida que a categoria existe
+            'account_id' => 'required|exists:accounts,id',
         ]);
 
         // Obter a categoria associada à transação
-        $category = \App\Models\Category::findOrFail($request->category_id);
+        $category = Category::findOrFail($request->category_id);
+        //$account = Account::findOrFail($request->account_id);
 
         // Se a categoria for de "expense", garantimos que o valor seja negativo
         $amount = $request->amount;
@@ -53,7 +57,8 @@ class TransactionController extends Controller
             'description' => $request->description,
             'amount' => $amount,
             'date' => $request->date,
-            'category_id' => $request->category_id
+            'category_id' => $request->category_id,
+            'account_id' => $request->account_id
         ]);
 
         return response()->json($transaction, 201);
@@ -62,7 +67,7 @@ class TransactionController extends Controller
     // Mostrar uma transação específica
     public function show($id)
     {
-        $transaction = Transaction::with('category')->findOrFail($id);
+        $transaction = Transaction::with('category', 'account')->findOrFail($id);
         return response()->json($transaction);
     }
 
@@ -178,6 +183,16 @@ class TransactionController extends Controller
             ->take(5)
             ->get();
 
+        // 5. Saldo por conta
+        $balancesByAccount = Account::with(['transactions' => function ($query) {
+            $query->selectRaw('account_id, SUM(amount) as balance')->groupBy('account_id');
+        }])->get();
+
+        // 6. Últimas transações por conta
+        $latestTransactionsByAccount = Account::with(['transactions' => function ($query) {
+            $query->orderBy('date', 'desc')->take(5);
+        }])->get();
+
         //dd($totalBalance);
         // Retornar os dados formatados para o frontend
         return response()->json([
@@ -187,6 +202,8 @@ class TransactionController extends Controller
             'monthly_balance' => $monthlyBalance,
             'expenses_by_category' => $expensesByCategory,
             'latest_transactions' => $latestTransactions,
+            'balances_by_account' => $balancesByAccount,
+            'latest_transactions_by_account' => $latestTransactionsByAccount
         ]);
     }
 }

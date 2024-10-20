@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nome da categoria
+            $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('type', ['income', 'expense']); // Tipo da categoria (income ou expense)
+            $table->enum('type', ['income', 'expense']); 
             $table->timestamps();
         });
     }

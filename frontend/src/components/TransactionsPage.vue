@@ -5,6 +5,14 @@
     <!-- Formulário para criar nova transação -->
     <form @submit.prevent="createTransaction" class="transaction-form">
       <div class="form-group">
+        <label for="account">Account</label>
+        <select v-model="newTransactionAccountId" required>
+          <option disabled value="">Select Account</option>
+          <option v-for="account in accounts" :key="account.id" :value="account.id">
+            {{ account.name }}
+          </option>
+        </select>
+
         <label for="amount">Amount</label>
         <input v-model.number="newTransactionAmount" type="number" placeholder="Amount" required />
 
@@ -39,6 +47,7 @@
       <thead>
         <tr>
           <th>Id</th>
+          <th>Account</th>
           <th>Date</th>
           <th>Description</th>
           <th>Amount (€)</th>
@@ -53,6 +62,7 @@
           :class="{ 'striped-row': index % 2 === 1 }"
         >
           <td>{{ transaction.id }}</td>
+          <td>{{ transaction.account?.name || '---------' }}</td>
           <td>{{ transaction.date }}</td>
           <td>{{ transaction.description }}</td>
           <td :class="getAmountClass(transaction)">{{ transaction.amount }}€</td>
@@ -82,18 +92,21 @@ export default {
       transactions: [], // Lista de transações
       categories: [], // Lista de categorias
       balance: 0, // Saldo total
+      accounts: [], // Lista de contas
       selectedMonth: '', // Mês selecionado pelo usuário
       newTransactionDescription: '', // Descrição da nova transação
       newTransactionAmount: 0, // Valor da nova transação
       newTransactionCategoryId: '', // Categoria selecionada
+      newTransactionAccountId: '',
       newTransactionDate: '', // Data da nova transação
       editingTransaction: {} // Transação sendo editada
     }
   },
   mounted() {
-    this.fetchTransactions() // Carrega todas as transações inicialmente
     this.fetchCategories() // Carrega as categorias
     this.fetchBalance() // Carrega o saldo
+    this.fetchAccounts() // Carrega as contas
+    this.fetchTransactions() // Carrega todas as transações inicialmente
   },
   methods: {
     // Buscar saldo (filtrado por mês, se disponível)
@@ -127,7 +140,8 @@ export default {
           description: this.newTransactionDescription,
           amount: this.newTransactionAmount,
           category_id: this.newTransactionCategoryId,
-          date: this.newTransactionDate
+          date: this.newTransactionDate,
+          account_id: this.newTransactionAccountId
         })
 
         if (this.selectedMonth) {
@@ -141,6 +155,7 @@ export default {
         this.newTransactionAmount = 0
         this.newTransactionCategoryId = ''
         this.newTransactionDate = ''
+        this.newTransactionAccountId = ''
       } catch (error) {
         console.error('Error creating transaction:', error)
       }
@@ -162,8 +177,20 @@ export default {
       try {
         const response = await axios.get('http://localhost:8000/api/categories')
         this.categories = response.data
+        console.log('categories:' + response.data);
       } catch (error) {
         console.error('Error fetching categories:', error)
+      }
+    },
+
+    // Buscar accounts
+    async fetchAccounts() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/accounts')
+        this.accounts = response.data
+        //console.log('accounts:' + response.data);
+      } catch (error) {
+        console.error('Error fetching accounts:', error)
       }
     },
 
@@ -215,20 +242,12 @@ export default {
     }
   }
 }
-
-
-
-
-
-
-
 </script>
 
 <style scoped>
-  .transactions-container {
-   
-    padding: 20px;
-  }
+.transactions-container {
+  padding: 20px;
+}
 /* Alinhamento e formatação do formulário */
 .transaction-form {
   display: flex;
@@ -246,7 +265,8 @@ label {
   margin-bottom: 5px;
 }
 
-input, select {
+input,
+select {
   margin-bottom: 15px;
   padding: 10px;
   border: 1px solid #ddd;
@@ -276,7 +296,8 @@ button.btn-submit:hover {
   margin-top: 20px;
 }
 
-.transaction-table th, .transaction-table td {
+.transaction-table th,
+.transaction-table td {
   padding: 12px 15px;
   border: 1px solid #ddd;
   text-align: left;

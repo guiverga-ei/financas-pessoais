@@ -12,11 +12,6 @@ class Category extends Model
     // Campos que podem ser preenchidos
     protected $fillable = ['name', 'description', 'type'];
 
-    // Relacionamento com Transaction (opcional, se houver)
-    //  public function transactions()
-    //  {
-    //      return $this->hasMany(Transaction::class);
-    //  }
 
     public function transactions()
     {
