@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // import HomeView from '../views/HomeView.vue'
 
-import Transactions from '../components/Transactions.vue'
-import Categories from '../components/Categories.vue'
+import Transactions from '../components/TransactionsPage.vue'
+import Categories from '../components/CategoriesPage.vue'
 // import Home from '../components/Home.vue'
-import Dashboard from '@/components/Dashboard.vue'
+import Dashboard from '@/components/DashboardPage.vue'
+import AccountsList from '@/components/AccountsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,11 @@ const router = createRouter({
       path: '/categories',
       name: 'Categories',
       component: Categories
+    },
+    {
+      path: '/accounts',
+      name: 'Accounts',
+      component: AccountsList
     },
     {
       path: '/about',

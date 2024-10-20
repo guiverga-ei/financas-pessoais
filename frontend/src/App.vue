@@ -4,9 +4,10 @@
     <nav class="sidebar">
       <div class="sidebar-logo">MyFinance</div>
       <ul class="sidebar-list">
-        <li><router-link to="/"><i class="fas fa-home"></i>  Dashboard</router-link></li>
+        <li><router-link to="/"><i class="fas fa-chart-simple"></i>  Dashboard</router-link></li>
         <li><router-link to="/transactions"><i class="fas fa-exchange-alt"></i> Transactions</router-link></li>
         <li><router-link to="/categories"><i class="fas fa-list"></i> Categories</router-link></li>
+        <li><router-link to="/accounts"><i class="fas fa-credit-card"></i> Accounts</router-link></li>
       </ul>
     </nav>
 

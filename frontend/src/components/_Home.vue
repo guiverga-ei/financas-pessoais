@@ -11,12 +11,12 @@
 
 <script>
 // Importa o componente Dashboard
-import Dashboard from '../components/Dashboard.vue'
+import Dashboard from './DashboardPage.vue'
 
 export default {
   name: 'Home',
   components: {
-    Dashboard  // Registra o componente Dashboard para uso no template
+    Dashboard // Registra o componente Dashboard para uso no template
   }
 }
 </script>
